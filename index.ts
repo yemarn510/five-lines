@@ -93,18 +93,27 @@ function update() {
 
   for (let y = map.length - 1; y >= 0; y--) {
     for (let x = 0; x < map[y].length; x++) {
-      if ((map[y][x] === Tile.STONE || map[y][x] === Tile.FALLING_STONE)
-        && map[y + 1][x] === Tile.AIR) {
-        map[y + 1][x] = Tile.FALLING_STONE;
-        map[y][x] = Tile.AIR;
-      } else if ((map[y][x] === Tile.BOX || map[y][x] === Tile.FALLING_BOX)
-        && map[y + 1][x] === Tile.AIR) {
-        map[y + 1][x] = Tile.FALLING_BOX;
-        map[y][x] = Tile.AIR;
-      } else if (map[y][x] === Tile.FALLING_STONE) {
-        map[y][x] = Tile.STONE;
-      } else if (map[y][x] === Tile.FALLING_BOX) {
-        map[y][x] = Tile.BOX;
+      const caseNo = ((map[y][x] === Tile.STONE || map[y][x] === Tile.FALLING_STONE)
+                        && map[y + 1][x] === Tile.AIR) ? 1 :
+                      ((map[y][x] === Tile.BOX || map[y][x] === Tile.FALLING_BOX)
+                        && map[y + 1][x] === Tile.AIR) ? 2 :
+                      (map[y][x] === Tile.FALLING_STONE) ? 3 :
+                      (map[y][x] === Tile.FALLING_BOX) ? 4 : {}
+      switch(caseNo){
+        case 1:
+          map[y + 1][x] = Tile.FALLING_STONE;
+          map[y][x] = Tile.AIR;
+          break
+        case 2:
+          map[y + 1][x] = Tile.FALLING_BOX;
+          map[y][x] = Tile.AIR;
+          break
+        case 3:
+          map[y][x] = Tile.STONE;
+          break
+        case 4:
+          map[y][x] = Tile.BOX;
+          break
       }
     }
   }
@@ -119,13 +128,14 @@ function draw() {
   // Draw map
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      g.fillStyle = (map[y][x] === Tile.FLUX) ? "#ccffcc" :
-                    (map[y][x] === Tile.UNBREAKABLE) ? "#999999" :
-                    (map[y][x] === Tile.STONE || map[y][x] === Tile.FALLING_STONE) ? "#0000cc" :
-                    (map[y][x] === Tile.BOX || map[y][x] === Tile.FALLING_BOX) ? "#8b4513" :
-                    (map[y][x] === Tile.KEY1 || map[y][x] === Tile.LOCK1) ? "#ffcc00" :
-                    (map[y][x] === Tile.KEY2 || map[y][x] === Tile.LOCK2) ? "#00ccff" : null;
-      if (map[y][x] !== Tile.AIR)
+      const mapXY = map[y][x]
+      g.fillStyle = (mapXY === Tile.FLUX) ? "#ccffcc" :
+                    (mapXY === Tile.UNBREAKABLE) ? "#999999" :
+                    (mapXY === Tile.STONE || mapXY === Tile.FALLING_STONE) ? "#0000cc" :
+                    (mapXY === Tile.BOX || mapXY === Tile.FALLING_BOX) ? "#8b4513" :
+                    (mapXY === Tile.KEY1 || mapXY === Tile.LOCK1) ? "#ffcc00" :
+                    (mapXY === Tile.KEY2 || mapXY === Tile.LOCK2) ? "#00ccff" : null;
+      if (mapXY !== Tile.AIR)
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
   }
@@ -149,10 +159,7 @@ window.onload = () => {
   gameLoop();
 }
 
-const LEFT_KEY = 37;
-const UP_KEY = 38;
-const RIGHT_KEY = 39;
-const DOWN_KEY = 40;
+const [LEFT_KEY, UP_KEY, RIGHT_KEY, DOWN_KEY] = [37, 38, 39, 40];
 window.addEventListener("keydown", e => {
   const direction = (e.keyCode === LEFT_KEY || e.key === "a") ? 'LEFT' : 
                       (e.keyCode === UP_KEY || e.key === "w") ? 'UP' : 
